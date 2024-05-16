@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SEARCH_PAGES='1'
+SEARCH_PAGES='5'
 
 if [ -f ./latest ]; then
     rm latest
