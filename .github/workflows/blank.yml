@@ -52,6 +52,7 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           MAIL: ${{ secrets.MAIL }}
           MY_NAME: ${{ secrets.MY_NAME}}
+          TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
           chmod +x check-version.sh build.sh 
           sudo git fetch --tags && ./check-version.sh && ./build.sh
