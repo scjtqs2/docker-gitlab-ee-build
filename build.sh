@@ -29,7 +29,7 @@ done < latest
 # 构建缺失的标签镜像
 for LATEST in "${no_match_tags[@]}"; do
     echo "Processing tag: ${LATEST}"
-    echo $LATEST >> version
+    echo ${LATEST} >> version
     echo "PACKAGECLOUD_REPO=gitlab-ee" > RELEASE
     echo "RELEASE_PACKAGE=gitlab-ee" >> RELEASE
     echo "RELEASE_VERSION=${LATEST}" >> RELEASE
@@ -37,11 +37,11 @@ for LATEST in "${no_match_tags[@]}"; do
     echo "DOWNLOAD_URL_arm64=https://packages.gitlab.com/gitlab/gitlab-ee/packages/ubuntu/jammy/gitlab-ee_${LATEST}_arm64.deb/download.deb" >> RELEASE
     docker buildx  build --platform  linux/arm64,linux/amd64  -t ${DOCKER_NAME}/gitlab-ee:${LATEST}  -f Dockerfile --push . || exit 1
     rm RELEASE
-    git add latest
-    git add version
-    git config --local user.email ${MAIL}
-    git config --local user.name ${MY_NAME}
-    git commit -a -m "build version ${LATEST}"
+    sudo git add latest
+    sudo git add version
+    sudo git config --local user.email ${MAIL}
+    sudo git config --local user.name ${MY_NAME}
+    sudo git commit -a -m "build version ${LATEST}"
     sudo git push --tags https://scjtqs2:{{secrets.GITHUB_TOKEN}}@github.com/scjtqs2/docker-gitlab-ee-build.git
 done
 
