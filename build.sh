@@ -25,7 +25,7 @@ done < latest
 #     old=1
 # fi
 
-
+sudo git remote set-url origin  https://scjtqs2:${TOKEN}@github.com/scjtqs2/docker-gitlab-ee-build.git
 # 构建缺失的标签镜像
 for LATEST in "${no_match_tags[@]}"; do
     echo "Processing tag: ${LATEST}"
@@ -43,7 +43,8 @@ for LATEST in "${no_match_tags[@]}"; do
     sudo git config --local user.email ${MAIL}
     sudo git config --local user.name ${MY_NAME}
     sudo git commit -a -m "build version ${LATEST}"
-    sudo git push --tags https://scjtqs2:${TOKEN}@github.com/scjtqs2/docker-gitlab-ee-build.git
+    sudo git push origin HEAD:${GITHUB_REF}
+    sudo git push --tags
 done
 
 # if  test "$old" != "$LATEST" ; then
