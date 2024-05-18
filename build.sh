@@ -37,14 +37,14 @@ for LATEST in "${no_match_tags[@]}"; do
     echo "DOWNLOAD_URL_arm64=https://packages.gitlab.com/gitlab/gitlab-ee/packages/ubuntu/jammy/gitlab-ee_${LATEST}_arm64.deb/download.deb" >> RELEASE
     docker buildx  build --platform  linux/arm64,linux/amd64  -t ${DOCKER_NAME}/gitlab-ee:${LATEST}  -f Dockerfile --push . || exit 1
     rm RELEASE
-    sudo git tag ${latest}
     sudo git add latest
     sudo git add version
     sudo git config --local user.email ${MAIL}
     sudo git config --local user.name ${MY_NAME}
     sudo git commit -a -m "build version ${LATEST}"
+    sudo git tag ${latest}
     sudo git push origin HEAD:${GITHUB_REF}
-    sudo git push --tags
+    sudo git push --tags  https://scjtqs2:${TOKEN}@github.com/scjtqs2/docker-gitlab-ee-build.git
 done
 
 # if  test "$old" != "$LATEST" ; then
