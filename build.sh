@@ -42,7 +42,7 @@ for LATEST in "${no_match_tags[@]}"; do
     sudo git config --local user.email ${MAIL}
     sudo git config --local user.name ${MY_NAME}
     sudo git commit -a -m "build version ${LATEST}"
-    sudo git tag ${latest}
+    sudo git tag ${LATEST}
     sudo git push --tags  https://scjtqs2:${TOKEN}@github.com/scjtqs2/docker-gitlab-ee-build.git
     sudo git push origin HEAD:${GITHUB_REF}
 done
