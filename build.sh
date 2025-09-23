@@ -33,8 +33,8 @@ for LATEST in "${no_match_tags[@]}"; do
     echo "PACKAGECLOUD_REPO=gitlab-ee" > RELEASE
     echo "RELEASE_PACKAGE=gitlab-ee" >> RELEASE
     echo "RELEASE_VERSION=${LATEST}" >> RELEASE
-    echo "DOWNLOAD_URL_amd64=https://packages.gitlab.com/gitlab/gitlab-ee/packages/ubuntu/jammy/gitlab-ee_${LATEST}_amd64.deb/download.deb" >> RELEASE
-    echo "DOWNLOAD_URL_arm64=https://packages.gitlab.com/gitlab/gitlab-ee/packages/ubuntu/jammy/gitlab-ee_${LATEST}_arm64.deb/download.deb" >> RELEASE
+    echo "DOWNLOAD_URL_amd64=https://packages.gitlab.com/gitlab/gitlab-ee/packages/ubuntu/noble/gitlab-ee_${LATEST}_amd64.deb/download.deb" >> RELEASE
+    echo "DOWNLOAD_URL_arm64=https://packages.gitlab.com/gitlab/gitlab-ee/packages/ubuntu/noble/gitlab-ee_${LATEST}_arm64.deb/download.deb" >> RELEASE
     docker buildx  build --platform  linux/arm64,linux/amd64  -t ${DOCKER_NAME}/gitlab-ee:${LATEST}  -f Dockerfile --push . || exit 1
     rm RELEASE
     sudo git add latest

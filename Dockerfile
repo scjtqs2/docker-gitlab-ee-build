@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM docker.io/ubuntu:24.04
 MAINTAINER GitLab Inc. <support@gitlab.com>
 
 #RUN sed -i s@/archive.ubuntu.com/@/mirrors.aliyun.com/@g /etc/apt/sources.list \
@@ -26,7 +26,7 @@ RUN apt-get update -q \
       tzdata \
       wget \
       perl \
-      libperl5.34 \
+      libperl5.38 \
       libatomic1 \
     && locale-gen \
     && cp -a /usr/lib/locale/locale-archive /tmp/locale-archive \
@@ -34,8 +34,9 @@ RUN apt-get update -q \
     && mv /tmp/locale-archive /usr/lib/locale/locale-archive \
     && rm -rf /var/lib/apt/lists/*
 
+
 # Use BusyBox
-ENV EDITOR /bin/vi
+ENV EDITOR=/bin/vi
 RUN busybox --install \
     && { \
         echo '#!/bin/sh'; \
@@ -47,6 +48,7 @@ RUN busybox --install \
 # Remove MOTD
 RUN rm -rf /etc/update-motd.d /etc/motd /etc/motd.dynamic
 RUN ln -fs /dev/null /run/motd.dynamic
+
 
 # Legacy code to be removed on 17.0.  See: https://gitlab.com/gitlab-org/omnibus-gitlab/-/merge_requests/7035
 ENV GITLAB_ALLOW_SHA1_RSA=false
@@ -62,10 +64,10 @@ RUN chmod -R og-w /assets RELEASE ; \
   /assets/setup
 
 # Allow to access embedded tools
-ENV PATH /opt/gitlab/embedded/bin:/opt/gitlab/bin:/assets:$PATH
+ENV PATH=/opt/gitlab/embedded/bin:/opt/gitlab/bin:/assets:$PATH
 
 # Resolve error: TERM environment variable not set.
-ENV TERM xterm
+ENV TERM=xterm
 
 # Expose web & ssh
 EXPOSE 443 80 22
@@ -74,7 +76,7 @@ EXPOSE 443 80 22
 VOLUME ["/etc/gitlab", "/var/opt/gitlab", "/var/log/gitlab"]
 
 # Wrapper to handle signal, trigger runit and reconfigure GitLab
-CMD ["/assets/wrapper"]
+CMD ["/assets/init-container"]
 
 HEALTHCHECK --interval=60s --timeout=30s --retries=5 \
 CMD /opt/gitlab/bin/gitlab-healthcheck --fail --max-time 10
