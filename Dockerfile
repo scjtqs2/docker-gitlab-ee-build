@@ -24,6 +24,7 @@ RUN apt-get update -q \
       locales \
       openssh-server \
       tzdata \
+      tzdata-legacy \
       wget \
       perl \
       libperl5.38 \
