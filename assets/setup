@@ -38,12 +38,20 @@ rm -f /etc/gitlab/gitlab.rb
 
 # Patch omnibus package
 sed -i "s/external_url 'GENERATED_EXTERNAL_URL'/# external_url 'GENERATED_EXTERNAL_URL'/" /opt/gitlab/etc/gitlab.rb.template
-if [ -d "/opt/gitlab/embedded/cookbooks/package/recipes" ]; then
-  sed -i "s#/etc/gitlab/gitlab.rb#/assets/gitlab.rb#g" /opt/gitlab/embedded/cookbooks/package/recipes/show_config.rb
-  sed -i "s#/etc/gitlab/gitlab.rb#/assets/gitlab.rb#g" /opt/gitlab/embedded/cookbooks/package/recipes/config.rb
-else
-  sed -i "s#/etc/gitlab/gitlab.rb#/assets/gitlab.rb#g" /opt/gitlab/embedded/cookbooks/gitlab/recipes/show_config.rb
-  sed -i "s#/etc/gitlab/gitlab.rb#/assets/gitlab.rb#g" /opt/gitlab/embedded/cookbooks/gitlab/recipes/config.rb
+if [ -f "/opt/gitlab/embedded/cookbooks/package/recipes/show_config.rb" ]; then
+  sed -i "s#/etc/gitlab/gitlab.rb#/assets/gitlab.rb#g" "/opt/gitlab/embedded/cookbooks/package/recipes/show_config.rb"
+fi
+
+if [ -f "/opt/gitlab/embedded/cookbooks/package/recipes/config.rb" ]; then
+  sed -i "s#/etc/gitlab/gitlab.rb#/assets/gitlab.rb#g" "/opt/gitlab/embedded/cookbooks/package/recipes/config.rb"
+fi
+
+if [ -f "/opt/gitlab/embedded/cookbooks/gitlab/recipes/show_config.rb" ]; then
+  sed -i "s#/etc/gitlab/gitlab.rb#/assets/gitlab.rb#g" "/opt/gitlab/embedded/cookbooks/gitlab/recipes/show_config.rb"
+fi
+
+if [ -f "/opt/gitlab/embedded/cookbooks/gitlab/recipes/config.rb" ]; then
+  sed -i "s#/etc/gitlab/gitlab.rb#/assets/gitlab.rb#g" "/opt/gitlab/embedded/cookbooks/gitlab/recipes/config.rb"
 fi
 
 # Set install type to docker
