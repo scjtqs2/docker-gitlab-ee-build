@@ -26,9 +26,26 @@ done < latest
 # fi
 
 sudo git remote set-url origin  https://scjtqs2:${TOKEN}@github.com/scjtqs2/docker-gitlab-ee-build.git
-# 构建缺失的标签镜像
-for LATEST in "${no_match_tags[@]}"; do
+# 构建缺失的标签镜像（从新到旧；单次运行最多构建 MAX_BUILDS 个，避免超出 job 6 小时上限，
+# 剩余缺的版本留给下一次定时任务继续补，直到追平）
+MAX_BUILDS=${MAX_BUILDS:-10}
+build_count=0
+for ((idx=${#no_match_tags[@]}-1; idx>=0; idx--)); do
+    LATEST="${no_match_tags[$idx]}"
+    if [ "${build_count}" -ge "${MAX_BUILDS}" ]; then
+        echo "Reached MAX_BUILDS=${MAX_BUILDS}, deferring remaining versions to next run"
+        break
+    fi
     echo "Processing tag: ${LATEST}"
+    # 预检 deb 是否存在：GitLab 会轮替下架旧 patch 的 deb（404）。
+    # 404 则跳过该版本（不打 tag，下轮再查）；其他非 200（如 5xx 网络抖动）保持原行为退出。
+    deb_missing=false
+    for arch in amd64 arm64; do
+        code=$(curl -sIL -o /dev/null -w '%{http_code}' --max-time 30 "https://packages.gitlab.com/gitlab/gitlab-ee/packages/ubuntu/noble/gitlab-ee_${LATEST}_${arch}.deb/download.deb")
+        if [ "${code}" = "404" ]; then deb_missing=true; fi
+        if [ "${code}" != "200" ] && [ "${code}" != "404" ]; then echo "Unexpected HTTP ${code} for ${LATEST} ${arch}, abort"; exit 1; fi
+    done
+    if ${deb_missing}; then echo "SKIP ${LATEST}: noble deb 已从 packages.gitlab.com 下架"; continue; fi
     echo ${LATEST} >> version
     echo "PACKAGECLOUD_REPO=gitlab-ee" > RELEASE
     echo "RELEASE_PACKAGE=gitlab-ee" >> RELEASE
@@ -45,6 +62,7 @@ for LATEST in "${no_match_tags[@]}"; do
     sudo git tag ${LATEST}
     sudo git push --tags  https://scjtqs2:${TOKEN}@github.com/scjtqs2/docker-gitlab-ee-build.git
     sudo git push origin HEAD:${GITHUB_REF}
+    build_count=$((build_count+1))
 done
 
 # if  test "$old" != "$LATEST" ; then

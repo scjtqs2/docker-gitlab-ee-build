@@ -1,14 +1,17 @@
 #!/bin/bash
 
-SEARCH_PAGES='5'
+# 旧数据源 packages.gitlab.com 的搜索页已被 GitLab 下线（HTTP 404，2026 年起）。
+# 改用 gitlab.com 上 omnibus-gitlab 仓库的 tags API：正式发布打 <版本>+ee.0 标签，
+# rc/pre 等预发布标签名中带 -rc/-pre 等后缀，会被下面的严格正则自然排除。
+# 把 + 换成 - 后与本仓库既有 tag 命名一致（如 19.5.3-ee.0）。
 
-if [ -f ./latest ]; then
-    rm latest
-fi
+rm -f latest
 
-for i in $(seq 1 ${SEARCH_PAGES}); do
-    curl -s "https://packages.gitlab.com/app/gitlab/gitlab-ee/search?filter=debs&page=${i}" | grep "_arm64.deb" | grep -v '\-rc' | sed 's/.*>\(.*\)<.*/\1/' | sort -u | sed 's/gitlab-ee_\(.*\)_arm64.deb/\1/' >> latest;
+for page in $(seq 1 5); do
+    curl -sf --max-time 30 "https://gitlab.com/api/v4/projects/gitlab-org%2Fomnibus-gitlab/repository/tags?per_page=100&page=${page}" \
+        | grep -o '"name":"[0-9][^"]*"' \
+        | sed 's/.*"name":"//;s/"$//' \
+        | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\+ee\.0$' \
+        | sed 's/+/-/' >> latest || true
 done
 sort -uV latest -o latest
-
-
